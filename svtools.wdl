@@ -21,7 +21,7 @@ workflow svtools {
             input: conda_path=conda_path, conda_environment_name=conda_environment_name, cohort_vcf=lmerge.output_vcf, bam=sample_array[1], splitter=sample_array[2], sample_name=sample_array[0]
         }
         call copynumber {
-            input: conda_path=conda_path, conda_environment_name=conda_environment_name, vcf=genotype.output_vcf, hist=sample_array[4], coordinate_file=prepare_coordinates.coordinate_file, sample_name=sample_array[0]
+            input: conda_path=conda_path, conda_environment_name=conda_environment_name, vcf=genotype.output_vcf, hist=sample_array[3], coordinate_file=prepare_coordinates.coordinate_file, sample_name=sample_array[0]
         }
     }
 
