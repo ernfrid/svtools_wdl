@@ -4,7 +4,7 @@ workflow svtools {
     String conda_path = '/gscmnt/gc2802/halllab/dlarson/svtools_tests/miniconda2/bin'
     String conda_environment_name = 'svtools0.2.0'
     File sample_map
-    Array[String] samples = read_lines(sample_map)
+    Array[Array[String]] samples = read_tsv(sample_map)
     
     call lsort {
         input: conda_path=conda_path, conda_environment_name=conda_environment_name
@@ -16,16 +16,12 @@ workflow svtools {
 
     call prepare_coordinates { input: conda_path=conda_path, conda_environment_name=conda_environment_name, input_vcf=lmerge.output_vcf }
     
-    scatter (map_line in samples) {
-        call sample_name {input: map_line=map_line}
-        call splitter_bam_path {input: map_line=map_line}
-        call bam_path {input: map_line=map_line}
+    scatter (sample_array in samples) {
         call genotype {
-            input: conda_path=conda_path, conda_environment_name=conda_environment_name, cohort_vcf=lmerge.output_vcf, bam=bam_path.bam_file, splitter=bam_path.bam_file, sample_name=sample_name.name
+            input: conda_path=conda_path, conda_environment_name=conda_environment_name, cohort_vcf=lmerge.output_vcf, bam=sample_array[1], splitter=sample_array[2], sample_name=sample_array[0]
         }
-        call hist_path {input: sample_name=sample_name.name, bam_file=bam_path.bam_file}
         call copynumber {
-            input: conda_path=conda_path, conda_environment_name=conda_environment_name, vcf=genotype.output_vcf, hist=hist_path.hist_file, coordinate_file=prepare_coordinates.coordinate_file, sample_name=sample_name.name
+            input: conda_path=conda_path, conda_environment_name=conda_environment_name, vcf=genotype.output_vcf, hist=sample_array[4], coordinate_file=prepare_coordinates.coordinate_file, sample_name=sample_array[0]
         }
     }
 
